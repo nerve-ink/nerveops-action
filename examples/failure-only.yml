@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests
+        run: make test
+
+      - name: Notify NerveOps on failure
+        if: failure()
+        uses: nerve-ink/nerveops-action@v1
+        with:
+          dsn: ${{ secrets.NERVE_DSN }}
+          title: CI failed
+          severity: critical
+          message: |
+            FAILED: ${{ github.repository }}
+            ref: ${{ github.ref_name }}
+            sha: ${{ github.sha }}
+            run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

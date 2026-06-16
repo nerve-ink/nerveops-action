@@ -1,0 +1,74 @@
+name: NerveOps Signal
+description: Send an encrypted NerveOps signal from GitHub Actions.
+author: Nerve
+
+branding:
+  icon: activity
+  color: gray-dark
+
+inputs:
+  dsn:
+    description: Sender DSN copied from the NerveOps app. Store it as a GitHub secret.
+    required: true
+  message:
+    description: Signal body. If omitted, a compact GitHub Actions summary is used.
+    required: false
+    default: ""
+  title:
+    description: Short title shown in NerveOps clients.
+    required: false
+    default: GitHub Actions
+  severity:
+    description: "Signal severity: standard, alert, or critical."
+    required: false
+    default: standard
+  kind:
+    description: Signal kind metadata.
+    required: false
+    default: alert
+  install-url:
+    description: Nerve CLI installer URL.
+    required: false
+    default: https://nerve.ink/install.sh
+
+runs:
+  using: composite
+  steps:
+    - name: Install nerve CLI
+      shell: bash
+      env:
+        NERVE_INSTALL_URL: ${{ inputs.install-url }}
+      run: |
+        set -euo pipefail
+        if ! command -v nerve >/dev/null 2>&1; then
+          curl -fsSL "$NERVE_INSTALL_URL" | sh
+        fi
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+    - name: Send encrypted signal
+      shell: bash
+      env:
+        NERVE_DSN: ${{ inputs.dsn }}
+        NERVE_MESSAGE: ${{ inputs.message }}
+        NERVE_TITLE: ${{ inputs.title }}
+        NERVE_SEVERITY: ${{ inputs.severity }}
+        NERVE_KIND: ${{ inputs.kind }}
+      run: |
+        set -euo pipefail
+
+        if [[ -z "$NERVE_MESSAGE" ]]; then
+          NERVE_MESSAGE="$(printf '%s\nrepo: %s\nref: %s\nsha: %s\nrun: %s/%s/actions/runs/%s\n' \
+            "${GITHUB_JOB:-workflow}" \
+            "${GITHUB_REPOSITORY:-unknown}" \
+            "${GITHUB_REF_NAME:-unknown}" \
+            "${GITHUB_SHA:-unknown}" \
+            "${GITHUB_SERVER_URL:-https://github.com}" \
+            "${GITHUB_REPOSITORY:-unknown}" \
+            "${GITHUB_RUN_ID:-unknown}")"
+        fi
+
+        printf '%s\n' "$NERVE_MESSAGE" \
+          | nerve send \
+              --title "$NERVE_TITLE" \
+              --severity "$NERVE_SEVERITY" \
+              --kind "$NERVE_KIND"
