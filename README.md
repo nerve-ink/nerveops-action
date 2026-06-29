@@ -2,17 +2,22 @@
 
 Send encrypted CI/CD signals from GitHub Actions to NerveOps.
 
+[Website](https://nerve.ink) · [App Store](https://apps.apple.com/us/app/nerveops/id6778026992) · [Google Play](https://play.google.com/store/apps/details?id=ink.nerve.app&pcampaignid=web_share) · [CLI](https://github.com/nerve-ink/nerve-cli)
+
 This action is a thin wrapper around [`nerve send`](https://github.com/nerve-ink/nerve-cli).
 It installs the public Nerve CLI, encrypts the message locally with your sender
 DSN, and sends ciphertext to the Nerve relay.
 
 ## Start with failure alerts
 
-1. Create a pipe in the NerveOps app.
-2. Open pipe setup.
-3. Copy the sender DSN.
-4. Store it as a repository or organization secret named `NERVE_DSN`.
-5. Add this step after your build/test/deploy steps:
+1. Install NerveOps from the
+   [App Store](https://apps.apple.com/us/app/nerveops/id6778026992) or
+   [Google Play](https://play.google.com/store/apps/details?id=ink.nerve.app&pcampaignid=web_share).
+2. Create a pipe in the NerveOps app.
+3. Open pipe setup.
+4. Copy the sender DSN.
+5. Store it as a repository or organization secret named `NERVE_DSN`.
+6. Add this step after your build/test/deploy steps:
 
 ```yaml
 - name: Notify NerveOps on failure
