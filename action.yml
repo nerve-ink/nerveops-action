@@ -1,5 +1,5 @@
-name: NerveOps Signal
-description: Send an encrypted NerveOps signal from GitHub Actions.
+name: GitHub Actions Failure Alerts
+description: Send failed deploy, CI, and smoke-test alerts to your phone with a send-only encrypted NerveOps secret.
 author: Nerve
 
 branding:
@@ -8,14 +8,14 @@ branding:
 
 inputs:
   dsn:
-    description: Sender DSN copied from the NerveOps app. Store it as a GitHub secret.
+    description: Send-only sender DSN copied from the NerveOps app. Store it as a GitHub secret.
     required: true
   message:
-    description: Signal body. If omitted, a compact GitHub Actions summary is used.
+    description: Alert body. If omitted, a compact GitHub Actions summary is used.
     required: false
     default: ""
   title:
-    description: Short title shown in NerveOps clients.
+    description: Short alert title shown in NerveOps clients.
     required: false
     default: GitHub Actions
   severity:
